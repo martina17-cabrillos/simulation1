@@ -1,374 +1,87 @@
 <!DOCTYPE html>
-<html lang="en">
+<html>
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Student Attendance System (User & Admin)</title>
+    <title>Attendance System</title>
     <style>
-        body { 
-            font-family: Arial, sans-serif; 
-            max-width: 900px; 
-            margin: 2rem auto; 
-            padding: 0 1rem; 
-            background-color: #f0f2f5;
+        body {
+            font-family: Arial;
+            text-align: center;
+            margin-top: 50px;
         }
-        .container { 
-            background: white; 
-            padding: 2rem; 
-            border-radius: 10px; 
-            box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+        .container {
+            border: 1px solid #ccc;
+            padding: 20px;
+            display: inline-block;
+            border-radius: 10px;
         }
-        h1, h2 { 
-            color: #1a73e8; 
-            text-align: center; 
-            margin: 0 0 1.5rem;
+        input {
+            padding: 10px;
+            width: 250px;
+            margin: 10px;
         }
-        .auth-section { 
-            text-align: center; 
-            padding: 2rem; 
-            max-width: 400px; 
-            margin: 0 auto 2rem; 
-            background: #f8fafc; 
-            border-radius: 8px;
-        }
-        .auth-input { 
-            margin: 0.5rem 0; 
-            padding: 0.6rem; 
-            width: 100%; 
-            border: 1px solid #dadce0; 
-            border-radius: 4px; 
-            box-sizing: border-box;
-        }
-        .auth-btn { 
-            padding: 0.7rem 1.5rem; 
-            margin: 1rem 0.5rem; 
-            border: none; 
-            border-radius: 4px; 
-            background: #1a73e8; 
-            color: white; 
+        button {
+            padding: 10px 20px;
+            font-size: 16px;
             cursor: pointer;
         }
-        .logout-btn { 
-            float: right; 
-            padding: 0.5rem 1rem; 
-            border: none; 
-            border-radius: 4px; 
-            background: #ea4335; 
-            color: white; 
-            cursor: pointer;
+        .present {
+            background-color: green;
+            color: white;
         }
-        .admin-controls { 
-            margin: 1rem 0; 
-            padding: 1rem; 
-            background: #e8f4ff; 
-            border-radius: 6px; 
-            display: none;
+        .absent {
+            background-color: red;
+            color: white;
         }
-        .student-row { 
-            display: flex; 
-            flex-wrap: wrap;
-            gap: 1rem; 
-            align-items: center; 
-            padding: 1rem; 
-            margin: 0.8rem 0; 
-            background: #f8fafc; 
-            border-radius: 6px; 
-            border-left: 4px solid #1a73e8;
+        #record {
+            margin-top: 20px;
+            text-align: left;
         }
-        .student-name { 
-            flex: 1; 
-            font-weight: 600; 
-            color: #202124;
-        }
-        .status-options { 
-            display: flex; 
-            gap: 0.5rem; 
-            flex-wrap: wrap;
-        }
-        button { 
-            padding: 0.6rem 1.2rem; 
-            border: none; 
-            border-radius: 4px; 
-            cursor: pointer; 
-            font-weight: 500;
-            transition: all 0.2s;
-        }
-        button:hover { opacity: 0.9; }
-        button:disabled { opacity: 0.5; cursor: not-allowed; }
-        .present { background: #34a853; color: white; }
-        .present.active { background: #2c8e45; box-shadow: 0 2px 4px rgba(52, 168, 83, 0.3); }
-        .excused { background: #1a73e8; color: white; }
-        .excused.active { background: #1557b0; box-shadow: 0 2px 4px rgba(26, 115, 232, 0.3); }
-        .unexcused { background: #ea4335; color: white; }
-        .unexcused.active { background: #c13527; box-shadow: 0 2px 4px rgba(234, 67, 53, 0.3); }
-        .secondary-btn { background: #6c757d; color: white; }
-        #summary { 
-            margin-top: 2rem; 
-            padding: 1.5rem; 
-            background: #f8fafc; 
-            border-radius: 6px; 
-            border-top: 4px solid #34a853;
-        }
-        .summary-item { 
-            margin: 0.7rem 0; 
-            padding: 0.3rem; 
-            color: #202124;
-        }
-        .hidden { display: none; }
-        #reason-container { 
-            margin-top: 1rem; 
-            padding: 1rem; 
-            background: #e8f0fe; 
-            border-radius: 6px;
-        }
-        #reason-input { 
-            margin: 0.5rem 0; 
-            padding: 0.6rem; 
-            width: 100%; 
-            border: 1px solid #dadce0; 
-            border-radius: 4px;
-            box-sizing: border-box;
-        }
-        .detail-item { 
-            padding: 0.4rem 0; 
-            color: #5f6368;
-        }
-        .status-label {
-            margin-left: 1rem;
-            font-size: 0.9rem;
-            font-style: italic;
-            color: #1a73e8;
-        }
-        .role-badge { 
-            float: left; 
-            padding: 0.5rem 1rem; 
-            border-radius: 4px; 
-            font-weight: 600;
-        }
-        .user-badge { background: #34a853; color: white; }
-        .admin-badge { background: #1a73e8; color: white; }
     </style>
 </head>
 <body>
+
     <div class="container">
-        <!-- Authentication Section -->
-        <div id="auth-screen">
-            <h1>Student Attendance System</h1>
-            <div class="auth-section">
-                <h3>Login to Continue</h3>
-                <input type="text" id="username" class="auth-input" placeholder="Enter username" required>
-                <input type="password" id="password" class="auth-input" placeholder="Enter password" required>
-                <button class="auth-btn" onclick="authenticateUser()">Login</button>
-                <p style="color: #ea4335; font-size: 0.9rem; display: none;" id="auth-error">Invalid username or password!</p>
-                <p style="font-size: 0.9rem; color: #5f6368;">
-                    Test Credentials:<br>
-                    User - Username: <b>user</b> | Password: <b>user123</b><br>
-                    Admin - Username: <b>admin</b> | Password: <b>admin123</b>
-                </p>
-            </div>
-        </div>
+        <h2>ATTENDANCE SYSTEM</h2>
+        <input type="text" id="nameInput" placeholder="Enter Student Name">
+        <br>
+        <button class="present" onclick="markPresent()">PRESENT</button>
+        <button class="absent" onclick="markAbsent()">ABSENT</button>
 
-        <!-- Main Attendance Screen (Hidden by Default) -->
-        <div id="main-screen" class="hidden">
-            <button class="logout-btn" onclick="logoutUser()">Logout</button>
-            <div id="role-indicator" class="role-badge"></div>
-            <div style="clear: both; margin-bottom: 1rem;"></div>
-
-            <h1>Student Attendance System</h1>
-            <h2>Grade 10 - Science | March 10, 2026</h2>
-
-            <!-- Admin Controls (Hidden for Users) -->
-            <div id="admin-controls" class="admin-controls">
-                <h3>⚙️ Admin Controls</h3>
-                <button class="secondary-btn" onclick="resetAllAttendance()">Reset All Attendance</button>
-                <button class="secondary-btn" onclick="exportAttendance()">Export Attendance Data (CSV)</button>
-                <button class="excused" onclick="editStudentList()">Edit Student List</button>
-            </div>
-
-            <!-- Attendance Marking Section -->
-            <div id="attendance-section">
-                <!-- Student 1 -->
-                <div class="student-row" id="row-0">
-                    <div class="student-name">1. Gene Mae Caramihan</div>
-                    <div class="status-options">
-                        <button class="present" onclick="markAttendance(0, 'Present')">Present</button>
-                        <button class="excused" onclick="promptReason(0)">Excused</button>
-                        <button class="unexcused" onclick="markAttendance(0, 'Unexcused')">Unexcused</button>
-                    </div>
-                    <div class="status-label" id="label-0">No remark set</div>
-                </div>
-
-                <!-- Student 2 -->
-                <div class="student-row" id="row-1">
-                    <div class="student-name">2. Karen Villaflor</div>
-                    <div class="status-options">
-                        <button class="present" onclick="markAttendance(1, 'Present')">Present</button>
-                        <button class="excused" onclick="promptReason(1)">Excused</button>
-                        <button class="unexcused" onclick="markAttendance(1, 'Unexcused')">Unexcused</button>
-                    </div>
-                    <div class="status-label" id="label-1">No remark set</div>
-                </div>
-
-                <!-- Student 3 -->
-                <div class="student-row" id="row-2">
-                    <div class="student-name">3. Nathaniel Pojas </div>
-                    <div class="status-options">
-                        <button class="present" onclick="markAttendance(2, 'Present')">Present</button>
-                        <button class="excused" onclick="promptReason(2)">Excused</button>
-                        <button class="unexcused" onclick="markAttendance(2, 'Unexcused')">Unexcused</button>
-                    </div>
-                    <div class="status-label" id="label-2">No remark set</div>
-                </div>
-
-                <!-- Student 4 -->
-                <div class="student-row" id="row-3">
-                    <div class="student-name">4. Martina Cabrillos </div>
-                    <div class="status-options">
-                        <button class="present" onclick="markAttendance(3, 'Present')">Present</button>
-                        <button class="excused" onclick="promptReason(3)">Excused</button>
-                        <button class="unexcused" onclick="markAttendance(3, 'Unexcused')">Unexcused</button>
-                    </div>
-                    <div class="status-label" id="label-3">No remark set</div>
-                </div>
-
-                <!-- Student 5 -->
-                <div class="student-row" id="row-4">
-                    <div class="student-name">5. Archie Vidal</div>
-                    <div class="status-options">
-                        <button class="present" onclick="markAttendance(4, 'Present')">Present</button>
-                        <button class="excused" onclick="promptReason(4)">Excused</button>
-                        <button class="unexcused" onclick="markAttendance(4, 'Unexcused')">Unexcused</button>
-                    </div>
-                    <div class="status-label" id="label-4">No remark set</div>
-                </div>
-
-                <!-- Reason Input Container -->
-                <div id="reason-container" class="hidden">
-                    <label><strong>Reason for Excused Absence:</strong></label>
-                    <input type="text" id="reason-input" placeholder="e.g., Medical check-up, Family event" required>
-                    <button class="excused" onclick="saveExcused()">Save Reason</button>
-                    <button class="secondary-btn" onclick="cancelReason()">Cancel</button>
-                </div>
-            </div>
-
-            <!-- Attendance Summary Section -->
-            <div id="summary">
-                <h3>📊 Attendance Summary</h3>
-                <div class="summary-item"><strong>Total Students:</strong> <span id="total-count">5</span></div>
-                <div class="summary-item"><strong>✅ Present:</strong> <span id="present-count">0</span></div>
-                <div class="summary-item"><strong>⚠️ Absent (Excused):</strong> <span id="excused-count">0</span></div>
-                <div class="summary-item"><strong>❌ Absent (Unexcused):</strong> <span id="unexcused-count">0</span></div>
-                
-                <h4 style="margin-top: 1.5rem; color: #1a73e8;">📋 Absent Details:</h4>
-                <div id="absent-details"><em>Mark remarks to see details here</em></div>
-            </div>
+        <div id="record">
+            <h3>RECORD:</h3>
+            <ul id="list"></ul>
         </div>
     </div>
 
     <script>
-        // System Configuration
-        const USERS = [
-            { username: "user", password: "user123", role: "User" },
-            { username: "admin", password: "admin123", role: "Admin" }
-        ];
-        let currentUser = null;
-        let currentStudentIndex = -1;
+        function markPresent() {
+            addRecord("PRESENT");
+        }
 
-        // Initialize attendance data
-        let students = [
-            { name: "Gene Mae Caramihan", status: "", reason: "" },
-            { name: "Karen Villaflor", status: "", reason: "" },
-            { name: "Nathaniel Pojas", status: "", reason: "" },
-            { name: "Martina Cabrillos", status: "", reason: "" },
-            { name: "Archie Vidal", status: "", reason: "" }
-        ];
+        function markAbsent() {
+            addRecord("ABSENT");
+        }
 
-        // Authentication Functions
-        function authenticateUser() {
-            const username = document.getElementById("username").value;
-            const password = document.getElementById("password").value;
-            const errorEl = document.getElementById("auth-error");
-
-            currentUser = USERS.find(u => u.username === username && u.password === password);
+        function addRecord(status) {
+            let name = document.getElementById("nameInput").value;
+            if (name === "") {
+                alert("Please enter a name!");
+                return;
+            }
             
-            if (currentUser) {
-                errorEl.style.display = "none";
-                document.getElementById("auth-screen").classList.add("hidden");
-                document.getElementById("main-screen").classList.remove("hidden");
-                
-                // Set role indicator
-                const roleBadge = document.getElementById("role-indicator");
-                roleBadge.textContent = `Role: ${currentUser.role}`;
-                roleBadge.className = `role-badge ${currentUser.role.toLowerCase()}-badge`;
-
-                // Configure access permissions
-                if (currentUser.role === "Admin") {
-                    document.getElementById("admin-controls").style.display = "block";
-                } else {
-                    // Restrict user from editing already marked entries
-                    disableMarkedButtons();
-                }
+            let li = document.createElement("li");
+            li.textContent = name + " - " + status;
+            
+            if (status === "PRESENT") {
+                li.style.color = "green";
             } else {
-                errorEl.style.display = "block";
+                li.style.color = "red";
             }
-        }
 
-        function logoutUser() {
-            // Reset all states
-            currentUser = null;
-            students.forEach(s => { s.status = ""; s.reason = ""; });
-            students.forEach((_, idx) => updateStudentDisplay(idx));
-            refreshSummary();
-            
-            // Reset UI
-            document.getElementById("main-screen").classList.add("hidden");
-            document.getElementById("auth-screen").classList.remove("hidden");
-            document.getElementById("username").value = "";
-            document.getElementById("password").value = "";
-            document.getElementById("auth-error").style.display = "none";
+            document.getElementById("list").appendChild(li);
+            document.getElementById("nameInput").value = ""; // Clear input
         }
+    </script>
 
-        // User Access Restriction
-        function disableMarkedButtons() {
-            students.forEach((student, idx) => {
-                if (student.status !== "") {
-                    const buttons = document.getElementById(`row-${idx}`).querySelectorAll("button");
-                    buttons.forEach(btn => btn.disabled = true);
-                }
-            });
-        }
-
-        // Attendance Core Functions
-        function promptReason(index) {
-            if (currentUser.role === "User" && students[index].status !== "") return;
-            currentStudentIndex = index;
-            document.getElementById("reason-input").value = students[index].reason || "";
-            document.getElementById("reason-container").classList.remove("hidden");
-            document.getElementById("reason-input").focus();
-        }
-
-        function saveExcused() {
-            const reason = document.getElementById("reason-input").value.trim();
-            if (reason === "") return;
-            
-            students[currentStudentIndex].status = "Excused";
-            students[currentStudentIndex].reason = reason;
-            document.getElementById("reason-container").classList.add("hidden");
-            updateStudentDisplay(currentStudentIndex);
-            if (currentUser.role === "User") disableMarkedButtons();
-            refreshSummary();
-        }
-
-        function cancelReason() {
-            document.getElementById("reason-container").classList.add("hidden");
-            if (students[currentStudentIndex].status !== "Excused") {
-                students[currentStudentIndex].status = "";
-                students[currentStudentIndex].reason = "";
-                updateStudentDisplay(currentStudentIndex);
-                refreshSummary();
-            }
-        }
-
-        function markAttendance(index, status) {
-            if (currentUser.role === "User"
-        
+</body>
+</html>
