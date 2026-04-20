@@ -10,13 +10,13 @@
             font-family: 'Poppins', sans-serif;
             background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
             margin: 0;
-            padding: 50px 0;
+            padding: 30px 0;
             min-height: 100vh;
         }
         .container {
             background-color: white;
-            padding: 40px 30px;
-            max-width: 450px;
+            padding: 30px;
+            max-width: 500px;
             margin: auto;
             border-radius: 15px;
             box-shadow: 0 10px 25px rgba(0, 0, 0, 0.2);
@@ -24,9 +24,10 @@
         h2 {
             color: #333;
             margin-top: 0;
-            margin-bottom: 25px;
+            margin-bottom: 15px;
             font-size: 24px;
             font-weight: 600;
+            text-align: center;
         }
         input {
             width: 100%;
@@ -35,7 +36,6 @@
             border: 1px solid #ddd;
             border-radius: 8px;
             font-size: 14px;
-            transition: border-color 0.3s;
         }
         input:focus {
             border-color: #667eea;
@@ -54,10 +54,6 @@
             border: none;
             border-radius: 8px;
             cursor: pointer;
-            transition: transform 0.2s;
-        }
-        button:hover {
-            transform: translateY(-2px);
         }
         .present {
             background: linear-gradient(to right, #28c76f, #20c997);
@@ -67,18 +63,60 @@
             background: linear-gradient(to right, #ea5455, #f56565);
             color: white;
         }
+        .stats {
+            display: flex;
+            justify-content: space-between;
+            margin: 15px 0;
+            padding: 10px;
+            background: #f0f4ff;
+            border-radius: 8px;
+        }
+        .stat-box {
+            text-align: center;
+        }
+        .stat-box span {
+            display: block;
+            font-size: 22px;
+            font-weight: bold;
+        }
+        #presentCount {
+            color: #28c76f;
+        }
+        #absentCount {
+            color: #ea5455;
+        }
+        #searchInput {
+            background-image: url('https://cdn-icons-png.flaticon.com/512/54/54481.png');
+            background-size: 18px;
+            background-repeat: no-repeat;
+            background-position: 10px center;
+            padding-left: 35px;
+        }
         #record {
-            margin-top: 30px;
+            margin-top: 20px;
             text-align: left;
         }
         #record h3 {
             color: #555;
             border-bottom: 2px solid #eee;
             padding-bottom: 10px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        .clear-btn {
+            background: #dc3545;
+            color: white;
+            padding: 5px 10px;
+            font-size: 12px;
+            border-radius: 5px;
+            cursor: pointer;
         }
         ul {
             list-style: none;
             padding: 0;
+            max-height: 300px;
+            overflow-y: auto;
         }
         li {
             background: #f8f9fa;
@@ -87,6 +125,18 @@
             border-radius: 8px;
             font-size: 14px;
             border-left: 5px solid #667eea;
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-start;
+        }
+        .delete-btn {
+            background: #ff4757;
+            color: white;
+            border: none;
+            padding: 5px 10px;
+            border-radius: 5px;
+            cursor: pointer;
+            font-size: 12px;
         }
         strong {
             color: #333;
@@ -107,13 +157,36 @@
             <button class="absent" onclick="markAbsent()">❌ ABSENT</button>
         </div>
 
+        <div class="stats">
+            <div class="stat-box">
+                <span id="presentCount">0</span>
+                <small>Present</small>
+            </div>
+            <div class="stat-box">
+                <span id="absentCount">0</span>
+                <small>Absent</small>
+            </div>
+            <div class="stat-box">
+                <span id="totalCount">0</span>
+                <small>Total</small>
+            </div>
+        </div>
+
+        <input type="text" id="searchInput" onkeyup="searchRecord()" placeholder="🔍 Search name or ID...">
+
         <div id="record">
-            <h3>ATTENDANCE RECORD</h3>
+            <h3>
+                ATTENDANCE RECORD
+                <button class="clear-btn" onclick="clearAll()">🗑️ Clear All</button>
+            </h3>
             <ul id="list"></ul>
         </div>
     </div>
 
     <script>
+        let present = 0;
+        let absent = 0;
+
         function markPresent() {
             addRecord("PRESENT");
         }
@@ -132,36 +205,70 @@
                 return;
             }
 
-            
             let now = new Date();
             let date = now.toLocaleDateString();
             let time = now.toLocaleTimeString();
 
             let li = document.createElement("li");
+            li.className = "list-item";
             li.innerHTML = 
+                "<div>" +
                 "<strong>ID:</strong> " + id + "<br>" +
                 "<strong>Name:</strong> " + fname + " " + lname + "<br>" +
-                "<strong>Status:</strong> " + status + " &nbsp;|&nbsp; " +
-                "<strong>Date:</strong> " + date + " &nbsp;|&nbsp; " +
-                "<strong>Time:</strong> " + time;
+                "<strong>Status:</strong> " + status + " | " +
+                "<strong>Date:</strong> " + date + " | " +
+                "<strong>Time:</strong> " + time +
+                "</div>" +
+                "<button class='delete-btn' onclick='this.parentElement.remove(); updateCount();'>×</button>";
             
             if (status === "PRESENT") {
                 li.style.borderLeftColor = "#28c76f";
                 li.style.color = "#28c76f";
+                present++;
             } else {
                 li.style.borderLeftColor = "#ea5455";
                 li.style.color = "#ea5455";
+                absent++;
             }
 
             document.getElementById("list").appendChild(li);
+            updateCount();
 
-        
             document.getElementById("idInput").value = "";
             document.getElementById("fnameInput").value = "";
             document.getElementById("lnameInput").value = "";
+        }
+
+        function updateCount() {
+            let total = document.querySelectorAll("#list li").length;
+            document.getElementById("presentCount").innerText = present;
+            document.getElementById("absentCount").innerText = absent;
+            document.getElementById("totalCount").innerText = total;
+        }
+
+        function clearAll() {
+            if(confirm("Are you sure you want to delete all records?")) {
+                document.getElementById("list").innerHTML = "";
+                present = 0;
+                absent = 0;
+                updateCount();
+            }
+        }
+
+        function searchRecord() {
+            let input = document.getElementById("searchInput").value.toLowerCase();
+            let items = document.querySelectorAll(".list-item");
+
+            items.forEach(function(item) {
+                let text = item.textContent.toLowerCase();
+                if(text.includes(input)) {
+                    item.style.display = "flex";
+                } else {
+                    item.style.display = "none";
+                }
+            });
         }
     </script>
 
 </body>
 </html>
-
