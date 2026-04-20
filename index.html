@@ -3,52 +3,112 @@
 <head>
     <title>Attendance System</title>
     <style>
+        * {
+            box-sizing: border-box;
+        }
         body {
-            font-family: Arial;
-            text-align: center;
-            margin-top: 50px;
+            font-family: 'Poppins', sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            margin: 0;
+            padding: 50px 0;
+            min-height: 100vh;
         }
         .container {
-            border: 1px solid #ccc;
-            padding: 20px;
-            display: inline-block;
-            border-radius: 10px;
+            background-color: white;
+            padding: 40px 30px;
+            max-width: 450px;
+            margin: auto;
+            border-radius: 15px;
+            box-shadow: 0 10px 25px rgba(0, 0, 0, 0.2);
+        }
+        h2 {
+            color: #333;
+            margin-top: 0;
+            margin-bottom: 25px;
+            font-size: 24px;
+            font-weight: 600;
         }
         input {
-            padding: 10px;
-            width: 250px;
-            margin: 10px;
+            width: 100%;
+            padding: 15px;
+            margin: 8px 0;
+            border: 1px solid #ddd;
+            border-radius: 8px;
+            font-size: 14px;
+            transition: border-color 0.3s;
+        }
+        input:focus {
+            border-color: #667eea;
+            outline: none;
+        }
+        .btn-group {
+            display: flex;
+            gap: 10px;
+            margin-top: 15px;
         }
         button {
-            padding: 10px 20px;
+            flex: 1;
+            padding: 15px;
             font-size: 16px;
+            font-weight: bold;
+            border: none;
+            border-radius: 8px;
             cursor: pointer;
+            transition: transform 0.2s;
+        }
+        button:hover {
+            transform: translateY(-2px);
         }
         .present {
-            background-color: green;
+            background: linear-gradient(to right, #28c76f, #20c997);
             color: white;
         }
         .absent {
-            background-color: red;
+            background: linear-gradient(to right, #ea5455, #f56565);
             color: white;
         }
         #record {
-            margin-top: 20px;
+            margin-top: 30px;
             text-align: left;
+        }
+        #record h3 {
+            color: #555;
+            border-bottom: 2px solid #eee;
+            padding-bottom: 10px;
+        }
+        ul {
+            list-style: none;
+            padding: 0;
+        }
+        li {
+            background: #f8f9fa;
+            margin: 10px 0;
+            padding: 15px;
+            border-radius: 8px;
+            font-size: 14px;
+            border-left: 5px solid #667eea;
+        }
+        strong {
+            color: #333;
         }
     </style>
 </head>
 <body>
 
     <div class="container">
-        <h2>ATTENDANCE SYSTEM</h2>
-        <input type="text" id="nameInput" placeholder="Enter Student Name">
-        <br>
-        <button class="present" onclick="markPresent()">PRESENT</button>
-        <button class="absent" onclick="markAbsent()">ABSENT</button>
+        <h2>📝 STUDENT ATTENDANCE</h2>
+
+        <input type="text" id="idInput" placeholder="🏫 School ID">
+        <input type="text" id="fnameInput" placeholder="👤 First Name">
+        <input type="text" id="lnameInput" placeholder="👤 Last Name">
+
+        <div class="btn-group">
+            <button class="present" onclick="markPresent()">✅ PRESENT</button>
+            <button class="absent" onclick="markAbsent()">❌ ABSENT</button>
+        </div>
 
         <div id="record">
-            <h3>RECORD:</h3>
+            <h3>ATTENDANCE RECORD</h3>
             <ul id="list"></ul>
         </div>
     </div>
@@ -63,25 +123,45 @@
         }
 
         function addRecord(status) {
-            let name = document.getElementById("nameInput").value;
-            if (name === "") {
-                alert("Please enter a name!");
+            let id = document.getElementById("idInput").value;
+            let fname = document.getElementById("fnameInput").value;
+            let lname = document.getElementById("lnameInput").value;
+
+            if (id === "" || fname === "" || lname === "") {
+                alert("⚠️ Please fill in all fields!");
                 return;
             }
+
             
+            let now = new Date();
+            let date = now.toLocaleDateString();
+            let time = now.toLocaleTimeString();
+
             let li = document.createElement("li");
-            li.textContent = name + " - " + status;
+            li.innerHTML = 
+                "<strong>ID:</strong> " + id + "<br>" +
+                "<strong>Name:</strong> " + fname + " " + lname + "<br>" +
+                "<strong>Status:</strong> " + status + " &nbsp;|&nbsp; " +
+                "<strong>Date:</strong> " + date + " &nbsp;|&nbsp; " +
+                "<strong>Time:</strong> " + time;
             
             if (status === "PRESENT") {
-                li.style.color = "green";
+                li.style.borderLeftColor = "#28c76f";
+                li.style.color = "#28c76f";
             } else {
-                li.style.color = "red";
+                li.style.borderLeftColor = "#ea5455";
+                li.style.color = "#ea5455";
             }
 
             document.getElementById("list").appendChild(li);
-            document.getElementById("nameInput").value = ""; // Clear input
+
+        
+            document.getElementById("idInput").value = "";
+            document.getElementById("fnameInput").value = "";
+            document.getElementById("lnameInput").value = "";
         }
     </script>
 
 </body>
 </html>
+
